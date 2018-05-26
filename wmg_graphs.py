@@ -6,7 +6,7 @@ File: wmg_graphs.py
 Date: Summer 2017
 Author: Tom Mason
 Email: tom.mason14@gmail.com
-Description: Two styles of graph- one simple, 
+Description: Two styles of graph- determining recystallisation times at given temperatures, calculating Avrami exponents
 """
 
 import math
