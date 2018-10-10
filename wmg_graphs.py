@@ -216,7 +216,7 @@ class Avrami:
     @classmethod
     def calcAvramiExp(cls, df2):
         """Calculation according to Avrami equation"""
-        # make values of 0 in time nan. then drop na
+        # convert values of t=0 into nan, then drop na
         df2 = df2.replace(0, np.nan).dropna(axis=0, how='all')
         time = np.array(df2['Time'])
         ln_time = np.array(np.log(time))
@@ -247,8 +247,8 @@ class Avrami:
         '''SCIPY'''
         print()
         stats = linregress(df_avrami['ln_time'], df_avrami['lnln'])
-        slope, intercept, r_value, p_value, std_err = stats  # UNPACKING
-        print('{} = {:.2f}'.format('Avrami exponent, n', slope))  # {0:.2f} floats print to 2 dps
+        slope, intercept, r_value, p_value, std_err = stats 
+        print('{} = {:.2f}'.format('Avrami exponent, n', slope)) 
         ave_k = math.exp(intercept)
         print('{} = {:.3E} per sec'.format('Average k', ave_k))
         ave_Rs = (-math.log(0.95) / ave_k) ** (1 / slope)
@@ -321,25 +321,15 @@ from the graph above and re-submit the data with a more appropriate timescale.
         while not valid:
             self.displayMenu()
             choice = int(input('Please select an option: '))
-            action = self.choices.get(choice)  # get(1,2,3) out of self.choices dictionary- can also have default value 
-            # equivalent to an else statement 
-            # if condition:
-            #     handle()
-            # elif:
-            #     handle()
-            # else:
-            #     else_handle()
-            # handle are the choices in the dict, else_handle is the default option in dict.get(handle, else_handle
-            if action:  # if there is no key of 1 2 or 3, returns false with no action taken- conditional if statement is skipped
+            action = self.choices.get(choice) 
+            if action: 
                 action()
             else:
                 print('Please choose a valid option')
 
 
 def exit():
-    print()
-    print('Thanks for using this program!')
-    print()
+    print('\nThanks for using this program!\n')
     sys.exit(0)
 
 
