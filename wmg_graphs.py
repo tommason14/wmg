@@ -177,7 +177,7 @@ class JMAK():
                 response = input('Would you like the averaged data using an Avrami Plot? (y/n) ')
                 if response in ('y', 'n'):
                     correct = True
-                else
+                else:
                     print("Please choose either 'y' or 'n'")
                   
             if response == 'y':
