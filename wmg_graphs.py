@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#    coding: utf-8
 
 """
 File: wmg_graphs.py
@@ -16,8 +15,6 @@ import matplotlib.pyplot as plt
 import sys
 from scipy.stats import linregress
 import seaborn
-import warnings
-warnings.filterwarnings('ignore')
 
 
 class JMAK():
@@ -33,7 +30,6 @@ class JMAK():
     @classmethod
     def getTemp(cls):
         """Asks user for annealing temperature"""
-        # Have to basically just guess a value for time to see if recrystallisation occurs in that timeframe
         print()
         temp = int(input('Recrystallisation temperature (\u00b0C): ')) + 273
         return temp
@@ -47,20 +43,14 @@ class JMAK():
         for i in range(layers):
             strain = float(input('Strain for layer {}: '.format(i + 1)))
             strainList.append(strain)
-        df1 = pd.DataFrame(strainList)
-        return df1
-
-    @classmethod
-    def strainTitle(cls, df1):
-        """Alteration of Pandas DataFrame used in code- not important"""
-        df1.columns = ['Strain']
+        df1 = pd.DataFrame(strainList, columns = ['Strain'])
         return df1
 
     @classmethod
     def getK(cls, df1, temp):
         """Calculation of recrystallisation rate constant, k
         and recrystallisation incubation time.
-        To obtain values for k and Rs, remove hash symbols (octothorpes) in code to uncomment lines"""
+        """
         RsList = []
         kList = []
         for i in df1['Strain']:
@@ -106,15 +96,12 @@ class JMAK():
 
     @classmethod
     def calcWeightedFrac(cls, df1, df2):
-        """Calculates weighted recrystallisation fractions
+        """
+        Calculates weighted recrystallisation fractions
         as weighting (from calcWeightings function) multiplied
-        by recrystallisation fraction"""
-
-        # Combine weightings from df1 with columns from df2
-        # multiply every value in fractions in df2 by the corresponding weighting
-        # weighted frac = frac * weighting
-        '''loc = select by label- for row, the row number, for columns, the column name
-           df.loc[rows, columns]'''
+        by recrystallisation fraction
+        """
+        
         i = 0
         while i < df1['Strain'].count():
             df2['weighted frac ' + str(i + 1)] = df2['frac ' + str(i + 1)] * df1.loc[i, 'Weightings']
@@ -123,8 +110,10 @@ class JMAK():
 
     @classmethod
     def aveFrac(cls, df2):
-        """Sums all weighted fractions, returns the average
-        recrystallisation fraction"""
+        """
+        Sums all weighted fractions, returns the average
+        recrystallisation fraction
+        """
 
         filtered = df2.filter(regex='weighted')
         df2['average'] = filtered.sum(axis=1)
@@ -132,7 +121,10 @@ class JMAK():
 
     @classmethod
     def printRecryst(cls, df1, df2):
-        """Plot of JMAK curve produced using matplotlib"""
+        """
+        Plot of JMAK curve produced using matplotlib
+        """
+        
         d = {}
         print()
         for i in range(len(df1['Weightings'])):
@@ -145,13 +137,15 @@ class JMAK():
                     else:
                         pass
             if valid:
-                print('50% recrystallisation of layer {0} occurs at {1:.2f}'.format(str(i + 1), np.interp(0.5, df2['frac ' + str(i + 1)], df2['Time'])), 'seconds')
+                print('50% recrystallisation of layer {0} occurs at {1:.2f} seconds'.format(str(i + 1), np.interp(0.5, df2['frac ' + str(i + 1)], df2['Time'])))
             else:
                 print('50% recrystallisation has not occured for layer {0}.'.format(str(i + 1)))
 
     @classmethod
     def plot(cls, df1, df2):
-        """Plot of JMAK curve produced using matplotlib"""
+        """
+        Plot of JMAK curve produced using matplotlib
+        """
 
         if len(df1['Weightings']) == 1:
             plt.figure(1)
@@ -171,30 +165,36 @@ class JMAK():
 
     @classmethod
     def avramiData(cls, df1, df2):
-        """Asks user if Avrami data is desired, then calls method of the Avrami class containing the data."""
+        """
+        Asks user if Avrami data is desired, then calls method of the Avrami class containing the data.
+        """
+        
         if len(df1['Weightings']) > 1:
             print()
-            response = input('Would you like the averaged data using an Avrami Plot? (y/n) ')
+            
+            correct = False
+            while not correct:
+                response = input('Would you like the averaged data using an Avrami Plot? (y/n) ')
+                if response in ('y', 'n'):
+                    correct = True
+                else
+                    print("Please choose either 'y' or 'n'")
+                  
             if response == 'y':
                 calc = Avrami.calcAvramiExp(df2)  # calculates values for avrami plots
                 Avrami.plot(calc)
                 Avrami.avramiStats(calc)
-            elif response == 'n':
-                print('Thanks for using this program!')
             else:
-                print("Please choose either 'y' or 'n'")
-        else:
-            pass
-
+                print('Thanks for using this program!')
+           
     @classmethod
     def main(cls):
         # ask user for temp and strain values of layers
         r_time = JMAK.get_time()
         t = JMAK.getTemp()
         askuser = JMAK.getStrain()
-        df1_with_strain_title = JMAK.strainTitle(askuser)
         # calculate k and Rs
-        df1_k = JMAK.getK(df1_with_strain_title, t)
+        df1_k = JMAK.getK(askuser, t)
         # calculate weightings for average fraction later on
         df1_weights = JMAK.calcWeightings(df1_k)
         # calculate recrystallisation fractions for a given time (default = 200)
@@ -210,8 +210,10 @@ class JMAK():
 
 
 class Avrami:
-    """Calculates the Avrami exponent, along with average recrystallisation rate constant and start time.
-    Plots this data according to the Avrami equation."""
+    """
+    Calculates the Avrami exponent, along with average recrystallisation rate constant and start time.
+    Plots this data according to the Avrami equation.
+    """
 
     @classmethod
     def calcAvramiExp(cls, df2):
@@ -232,8 +234,11 @@ class Avrami:
 
     @classmethod
     def plot(cls, df_avrami):
-        '''Plot an 'Avrami plot', as a method to find the average starting recryst. time,
-        average recryst. rate constant and Avrami exponent (accounts for grain growth)'''
+        '''
+        Plot an 'Avrami plot', as a method to find the average starting recryst. time,
+        average recryst. rate constant and Avrami exponent (accounts for grain growth)
+        '''
+        
         plt.figure(2)
         plt.plot(df_avrami['ln_time'], df_avrami['lnln'])
         plt.title('Avrami')
@@ -243,8 +248,6 @@ class Avrami:
 
     @classmethod
     def avramiStats(cls, df_avrami):
-        # ---------analysis------------
-        '''SCIPY'''
         print()
         stats = linregress(df_avrami['ln_time'], df_avrami['lnln'])
         slope, intercept, r_value, p_value, std_err = stats 
@@ -256,14 +259,16 @@ class Avrami:
 
 
 class TimeCurves():
-    """Graph showing initial and final recrystallisation times,
+    """
+    Graph showing initial and final recrystallisation times,
     for a given macro-strain values.
     - Assumes grain size of 200 microns (D0^2 = 40000, in formula for Rs)
     - Assuming 300 kJ/mol activation energy (Ea)
     - Assuming a pre exponential factor of 6.76x10^-20 in Rs
     - Rs = 6.76x10^-20 * D0^2 * (strain)^-4 * exp(Ea / RT)
     - Rf = 85% Recrystallisation
-    Note that the initial temp must be lower than the final temperature"""
+    Note that the initial temp must be lower than the final temperature
+    """
 
     @classmethod
     def makeGraph(cls):
@@ -302,7 +307,10 @@ class Menu:
         }
 
     def displayMenu(self):
-        """Displays menu and responds to choice"""
+        """
+        Displays menu and responds to choice
+        """
+        
         print("""
 Welcome to the recrystallisation graphing program!
 
@@ -327,16 +335,12 @@ from the graph above and re-submit the data with a more appropriate timescale.
             else:
                 print('Please choose a valid option')
 
-
 def exit():
-    print('\nThanks for using this program!\n')
-    sys.exit(0)
-
+    sys.exit('\nThanks for using this program!\n')
 
 def main():
     menu = Menu()
     menu.run()
-
 
 if __name__ == "__main__":
     main()
